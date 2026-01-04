@@ -1,0 +1,36 @@
+target/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+*.class
+
+# Mobile Tools for Java (J2ME)
+.mtj.tmp/
+
+# Package Files #
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
+hs_err_pid*
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# VS Code
+.vscode/
+
+# Config repo git inside git (submodule handling varies, but usually we prefer to ignore the .git folder if not a submodule)
+# config-repo/.git/ 
+# But here we want to commit the config-repo files. 
+# Since config-repo IS a git repo, the root git might see it as a submodule or nested repo. 
+# For simplicity in this student project, we might want to just commit the files. 
+# However, standard git won't add a nested .git. We will largely ignore the inner .git structure or let the user handle submodules. 
+# For now, let's just make sure we ignore typical artifacts.
