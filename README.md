@@ -1,57 +1,121 @@
 # Projet E-Commerce Microservices (Spring Cloud)
 
-Ce projet est une application e-commerce basée sur une architecture microservices avec Spring Boot et Spring Cloud.
+Ce projet est une application e-commerce distribuée basée sur une architecture microservices robuste utilisant l'écosystème Spring Boot et Spring Cloud.
 
-## Architecture
+## 🏗️ Architecture
 
-Le projet est composé des services suivants :
+Le système est composé de microservices autonomes interconnectés :
 
-1.  **Customer Service** : Gestion des clients (JPA, H2, Spring Data REST).
-2.  **Inventory Service** : Gestion des produits (JPA, H2, Spring Data REST).
-3.  **Gateway Service** : Point d'entrée unique (Spring Cloud Gateway), routage dynamique.
-4.  **Discovery Service** : Annuaire des services (Netflix Eureka).
-5.  **Billing Service** : Gestion des factures (OpenFeign pour communiquer avec Customer et Inventory).
-6.  **Config Service** : Gestion centralisée de la configuration.
+```mermaid
+graph TD
+    User((Utilisateur))
+    Gateway[Gateway Service<br/>Port: 8888]
+    Discovery[Discovery Service<br/>Eureka<br/>Port: 8761]
+    Config[Config Service<br/>Port: 9999]
+    REPO[(Config Repo<br/>Git)]
+    
+    Customer[Customer Service<br/>Port: 8081]
+    Inventory[Inventory Service<br/>Port: 8082]
+    Billing[Billing Service<br/>Port: 8083]
+    
+    DB1[(H2 Customer)]
+    DB2[(H2 Inventory)]
+    DB3[(H2 Billing)]
 
-## Prérequis
+    User --> Gateway
+    Gateway --> Customer
+    Gateway --> Inventory
+    Gateway --> Billing
+    
+    Customer -.-> Discovery
+    Inventory -.-> Discovery
+    Billing -.-> Discovery
+    Gateway -.-> Discovery
+    
+    Customer -.-> Config
+    Inventory -.-> Config
+    Billing -.-> Config
+    Gateway -.-> Config
+    Discovery -.-> Config
+    
+    Config --> REPO
 
-*   Java 21
-*   Maven
+    Billing --> Customer
+    Billing --> Inventory
+    
+    Customer --> DB1
+    Inventory --> DB2
+    Billing --> DB3
+```
 
-## Démarrage
+### Services implémentés :
 
-Il est important de démarrer les services dans l'ordre suivant :
+1.  **Config Service** (Port 9999) : 
+    -   Centralise les fichiers de configuration de tous les microservices via un dépôt Git local.
+    -   Permet la modification dynamique de la configuration.
+2.  **Discovery Service** (Port 8761) :
+    -   Serveur Eureka pour l'enregistrement et la découverte dynamique des services.
+3.  **Gateway Service** (Port 8888) :
+    -   Point d'entrée unique basé sur Spring Cloud Gateway.
+    -   Assure le routage vers les microservices.
+4.  **Customer Service** (Port 8081) :
+    -   Microservice de gestion des clients.
+    -   Utilise Spring Data JPA et H2.
+5.  **Inventory Service** (Port 8082) :
+    -   Microservice de gestion des produits.
+6.  **Billing Service** (Port 8083) :
+    -   Service de facturation.
+    -   Utilise **OpenFeign** pour communiquer avec *Customer-Service* et *Inventory-Service*.
+    -   Agrège les données pour fournir une facture complète (Client + Produits).
 
-1.  **Config Service** (Port 9999)
-2.  **Discovery Service** (Port 8761)
-3.  **Gateway Service** (Port 8888)
-4.  **Customer Service** (Port 8081)
-5.  **Inventory Service** (Port 8082)
-6.  **Billing Service** (Port 8083)
+## 🛠️ Stack Technique
 
-## Fonctionnalités et Captures d'écran
+*   **Java 21**
+*   **Spring Boot 3.x**
+*   **Spring Cloud 2023.x**
+    -   Eureka Server/Client
+    -   Config Server/Client
+    -   OpenFeign
+    -   Gateway
+*   **Base de données** : H2 (In-memory)
+*   **Build Tool** : Maven
+
+## 📸 Démonstration et Captures d'écran
 
 ### 1. Eureka Discovery Service
-Tableau de bord montrant tous les services enregistrés.
+Tableau de bord de surveillance montrant tous les services enregistrés et actifs.
 ![Eureka Dashboard](captures/eureka_dashboard.png)
-*(Placez votre capture d'écran ici : http://localhost:8761)*
 
-### 2. Configuration Centralisée
-Le `billing-service` récupère sa configuration depuis le `config-service`.
-Exemple de réponse du Config Server :
+### 2. Configuration Centralisée (Config Server)
+Démonstration du `billing-service` récupérant sa configuration depuis le serveur centralisé (Git).
 ![Config Server Response](captures/config_server.png)
-*(Placez votre capture d'écran ici : http://localhost:9999/billing-service/default)*
 
-### 3. Billing Service (OpenFeign & RestController)
-Le service de facturation récupère les infos client et produits via des appels REST (Feign Client).
-La réponse JSON complète de la facture (Question 7 & 8) :
+### 3. Billing Service (Facture Complète - OpenFeign)
+Le résultat final de l'agrégation des données. Le service Récupère l'ID du client et des produits, puis interroge les autres services pour construire cet objet JSON complet.
 ![Billing Json](captures/billing_response.png)
-*(Placez votre capture d'écran ici : http://localhost:8083/bills/1)*
 
-### 4. Base de données H2
-Accès à la console H2 pour vérifier les données.
+### 4. Customer Service
+API de gestion des clients (exposée via Spring Data REST).
+![Customer Service](captures/customer_service.png)
+
+### 5. Inventory Service
+API de gestion de l'inventaire produits.
+![Inventory Service](captures/inventory_service.png)
+
+### 6. Console H2
+Vérification des données persistées en mémoire.
 ![H2 Console](captures/h2_console.png)
-*(Placez votre capture d'écran ici : http://localhost:8083/h2-console)*
+
+## 🚀 Comment démarrer
+
+1.  Cloner le dépôt.
+2.  Démarrer les services dans l'ordre strict :
+    -   `ConfigServiceApplication`
+    -   `DiscoveryServiceApplication`
+    -   `GatewayServiceApplication`
+    -   `CustomerServiceApplication`
+    -   `InventoryServiceApplication`
+    -   `BillingServiceApplication`
 
 ## Auteurs
-*   **Yassine** - *Initial work*
+*   **Yassine** - *Étudiant Big Data & Cloud Computing*
